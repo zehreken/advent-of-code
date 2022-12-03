@@ -11,7 +11,7 @@ pub fn run() {
 
 fn part_two() {
     let sum = read_lines("input/aoc02.txt")
-        .expect("Error reading aoc02")
+        .expect("Error reading aoc02.txt")
         .map(|line| check_part_two(line.unwrap()))
         .collect::<Vec<u32>>()
         .iter()

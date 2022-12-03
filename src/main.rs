@@ -1,5 +1,6 @@
 mod aoc01;
 mod aoc02;
+mod aoc03;
 pub mod utils;
 
 fn main() {
@@ -8,7 +9,7 @@ fn main() {
     // aoc06::run();
     // aoc05::run();
     // aoc04::run();
-    // aoc03::run();
-    aoc02::run();
+    aoc03::run();
+    // aoc02::run();
     // aoc01::run();
 }
