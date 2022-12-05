@@ -12,11 +12,33 @@ pub fn run() {
     stacks.push(vec!['C', 'M', 'D', 'B', 'F']);
     stacks.push(vec!['F', 'C', 'Q', 'G']);
 
-    part_two();
-    part_one(&mut stacks);
+    part_two(&mut stacks);
+    // part_one(&mut stacks);
 }
 
-fn part_two() {}
+fn part_two(stacks: &mut Vec<Vec<char>>) {
+    read_lines("input/aoc05.txt")
+        .expect("Error reading aoc05.txt")
+        .for_each(|line| {
+            if let Ok(line_ok) = line {
+                let (count, from, to) = parse_command(line_ok);
+                let mut temp = Vec::new();
+                for _ in 0..count {
+                    temp.push(stacks[from - 1].pop().unwrap());
+                }
+                for _ in 0..count {
+                    stacks[to - 1].push(temp.pop().unwrap());
+                }
+            }
+        });
+
+    let solution: Vec<_> = stacks.iter().map(|stack| stack.last()).collect();
+    println!("");
+    for c in solution {
+        print!("{}", c.unwrap());
+    }
+    println!("");
+}
 
 fn part_one(stacks: &mut Vec<Vec<char>>) {
     read_lines("input/aoc05.txt")
