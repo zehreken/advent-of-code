@@ -137,3 +137,6 @@ struct File {
     name: String,
     size: u32,
 }
+
+// Good tutorial on how to use Rc and RefCell
+// https://applied-math-coding.medium.com/a-tree-structure-implemented-in-rust-8344783abd75
