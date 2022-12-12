@@ -8,8 +8,8 @@
 // mod aoc08;
 // mod aoc09;
 // mod aoc10;
-mod aoc11;
-// mod aoc12;
+// mod aoc11;
+mod aoc12;
 // mod aoc13;
 // mod aoc14;
 // mod aoc15;
@@ -41,8 +41,8 @@ fn main() {
     // aoc15::run();
     // aoc14::run();
     // aoc13::run();
-    // aoc12::run();
-    aoc11::run();
+    aoc12::run();
+    // aoc11::run();
     // aoc10::run();
     // aoc09::run();
     // aoc08::run();
