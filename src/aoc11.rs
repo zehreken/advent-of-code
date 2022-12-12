@@ -1,4 +1,5 @@
 use crate::utils::read_lines;
+use std::num::Wrapping;
 
 pub fn run() {
     part_two();
@@ -38,7 +39,7 @@ fn part_one() {
 
 fn play_round(
     monkeys: &Vec<Monkey>,
-    monkey_items: &mut Vec<Vec<i32>>,
+    monkey_items: &mut Vec<Vec<u32>>,
     monkey_inspections: &mut Vec<i32>,
 ) {
     for (i, monkey) in monkeys.iter().enumerate() {
@@ -57,24 +58,42 @@ fn play_round(
 struct Monkey {
     id: u8,
     operation: Operation,
-    operator: i32,
-    divisor: i32,
+    operator: u32,
+    divisor: u32,
     true_monkey: u8,
     false_monkey: u8,
 }
 
 impl Monkey {
-    fn inspect(&self, item: i32) -> i32 {
-        let inspected_item: i32 = match self.operation {
-            Operation::Add => item + self.operator,
-            Operation::Multiply => item * self.operator,
-            Operation::Square => item * item,
+    fn inspect(&self, item: u32) -> u32 {
+        let inspected_item: u32 = match self.operation {
+            Operation::Add => {
+                let w_item = Wrapping(item);
+                let w_operator = Wrapping(self.operator);
+                let w_result = w_item + w_operator;
+                if w_result < w_item {
+                    // Overflow
+                    return w_result.0 + 1;
+                } else {
+                    return w_result.0;
+                }
+            }
+
+            Operation::Multiply => {
+                let n_item = item % self.divisor;
+                let n_operator = self.operator % self.divisor;
+                n_item * n_operator
+            }
+            Operation::Square => {
+                let n_item = item % self.divisor;
+                n_item * n_item
+            }
         };
 
-        inspected_item / 3
+        inspected_item
     }
 
-    fn pick_monkey(&self, item: i32) -> u8 {
+    fn pick_monkey(&self, item: u32) -> u8 {
         if item % self.divisor == 0 {
             return self.true_monkey;
         } else {
@@ -83,7 +102,7 @@ impl Monkey {
     }
 }
 
-fn parse_monkey(slice: &[String]) -> (Monkey, Vec<i32>) {
+fn parse_monkey(slice: &[String]) -> (Monkey, Vec<u32>) {
     // slice.iter().for_each(|l| println!("{}", l));
     let mut slice_iter = slice.iter();
     let id = parse_id(slice_iter.next().unwrap());
@@ -112,20 +131,20 @@ fn parse_id(s: &String) -> u8 {
     id
 }
 
-fn parse_items(s: &String) -> Vec<i32> {
+fn parse_items(s: &String) -> Vec<u32> {
     let items = s
         .split_once(':')
         .unwrap()
         .1
         .split(',')
         // .for_each(|item| println!("{}", item.trim()));
-        .map(|item| item.trim().parse::<i32>().unwrap())
+        .map(|item| item.trim().parse::<u32>().unwrap())
         .collect();
 
     items
 }
 
-fn parse_operation(s: &String) -> (Operation, i32) {
+fn parse_operation(s: &String) -> (Operation, u32) {
     let operation = s
         .split(' ')
         .skip(6)
@@ -147,8 +166,8 @@ fn parse_operation(s: &String) -> (Operation, i32) {
     }
 }
 
-fn parse_divisor(s: &String) -> i32 {
-    let divisor: i32 = s.split(' ').last().unwrap().trim().parse().unwrap();
+fn parse_divisor(s: &String) -> u32 {
+    let divisor: u32 = s.split(' ').last().unwrap().trim().parse().unwrap();
 
     divisor
 }
