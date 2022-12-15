@@ -57,6 +57,8 @@ fn part_one() {
         .for_each(|c| println!("{:?}", c));
 
     check_frontier_cells(&grid, &mut frontier_cells, &mut visited_cells);
+
+    frontier_cells.iter().for_each(|c| println!("{:?}", c));
 }
 
 fn get_neighbours<'a, 'b>(grid: &'a Vec<Vec<Cell>>, cell: &'b Cell) -> Vec<&'a Cell> {
@@ -82,18 +84,22 @@ fn get_neighbours<'a, 'b>(grid: &'a Vec<Vec<Cell>>, cell: &'b Cell) -> Vec<&'a C
 fn check_frontier_cells<'a>(
     grid: &'a Vec<Vec<Cell>>,
     frontier_cells: &mut VecDeque<&'a Cell>,
-    visited_cells: &mut Vec<&Cell>,
+    visited_cells: &mut Vec<&'a Cell>,
 ) {
-    for cell in frontier_cells {
-        let neighbours = get_neighbours(grid, cell);
-        for neighbour in neighbours {
-            if cell.height <= neighbour.height {
-                // frontier_cells.push_front(neighbour);
+    for i in 0..frontier_cells.len() {
+        let cell = frontier_cells[i];
+        if !visited_cells.contains(&cell) {
+            visited_cells.push(cell);
+            frontier_cells.pop_front();
+            let neighbours = get_neighbours(grid, cell);
+            for neighbour in neighbours {
+                if cell.height <= neighbour.height {
+                    frontier_cells.push_back(neighbour);
+                }
             }
+            check_frontier_cells(grid, frontier_cells, visited_cells);
         }
-        // frontier_cells.pop_back();
     }
-    // frontier_cells.pop_back();
 }
 
 fn calculate_h_score((r1, c1): (u8, u8), (r2, c2): (u8, u8)) -> u8 {
@@ -112,5 +118,11 @@ struct Cell {
 impl Cell {
     fn get_f_score(&self) -> u8 {
         self.h_score + self.g_score
+    }
+}
+
+impl PartialEq for Cell {
+    fn eq(&self, other: &Self) -> bool {
+        self.r == other.r && self.c == other.c
     }
 }
