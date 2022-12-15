@@ -1,4 +1,5 @@
 use crate::utils::read_lines;
+use std::collections::VecDeque;
 
 const START: u8 = 35;
 const END: u8 = 21;
@@ -48,23 +49,17 @@ fn part_one() {
     });
 
     let mut visited_cells: Vec<&Cell> = vec![];
-    let mut frontier_cells: Vec<&mut Cell> = vec![];
-    frontier_cells.push(&mut grid[0][0]);
-
-    // grid.iter().for_each(|row| {
-    //     println!("");
-    //     row.iter().for_each(|cell| {
-    //         println!("{:?}", get_neighbours(&grid, &cell));
-    //         // print!("{:?} ", cell.height);
-    //     });
-    // });
+    let mut frontier_cells: VecDeque<&Cell> = VecDeque::new();
+    frontier_cells.push_front(&grid[0][0]);
 
     get_neighbours(&grid, &grid[1][2])
         .iter()
         .for_each(|c| println!("{:?}", c));
+
+    check_frontier_cells(&grid, &mut frontier_cells, &mut visited_cells);
 }
 
-fn get_neighbours<'a>(grid: &'a Vec<Vec<Cell>>, cell: &'a Cell) -> Vec<&'a Cell> {
+fn get_neighbours<'a, 'b>(grid: &'a Vec<Vec<Cell>>, cell: &'b Cell) -> Vec<&'a Cell> {
     // up, right, down, left
     let neighbour_coords: Vec<(i8, i8)> = vec![(-1, 0), (0, 1), (1, 0), (0, -1)];
     let mut neighbours = vec![];
@@ -84,7 +79,22 @@ fn get_neighbours<'a>(grid: &'a Vec<Vec<Cell>>, cell: &'a Cell) -> Vec<&'a Cell>
     neighbours
 }
 
-fn check_frontier_cells(frontier_cells: &mut Vec<&mut Cell>, visited_cells: &mut Vec<&Cell>) {}
+fn check_frontier_cells<'a>(
+    grid: &'a Vec<Vec<Cell>>,
+    frontier_cells: &mut VecDeque<&'a Cell>,
+    visited_cells: &mut Vec<&Cell>,
+) {
+    for cell in frontier_cells {
+        let neighbours = get_neighbours(grid, cell);
+        for neighbour in neighbours {
+            if cell.height <= neighbour.height {
+                // frontier_cells.push_front(neighbour);
+            }
+        }
+        // frontier_cells.pop_back();
+    }
+    // frontier_cells.pop_back();
+}
 
 fn calculate_h_score((r1, c1): (u8, u8), (r2, c2): (u8, u8)) -> u8 {
     r1.abs_diff(r2) + c1.abs_diff(c2)
