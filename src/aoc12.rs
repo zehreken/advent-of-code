@@ -1,5 +1,5 @@
 use crate::utils::read_lines;
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use std::rc::Rc;
 
 const START: u8 = 35;
@@ -47,6 +47,9 @@ fn part_one() {
     };
     visited.push(root.pos);
     frontier.push_back(root.pos);
+    let mut pos_to_node: HashMap<Vec2, Rc<Node>> = HashMap::new();
+    pos_to_node.insert(Vec2 { row: 0, column: 0 }, Rc::new(root));
+    let mut target: Option<Rc<Node>> = None;
 
     while !frontier.is_empty() {
         let current_pos = frontier.pop_front();
@@ -54,51 +57,33 @@ fn part_one() {
             let current_height = grid[current_pos.row as usize][current_pos.column as usize];
             if current_height == END {
                 //
+                println!("Reached the target!");
+                target = Some(Rc::clone(&pos_to_node[&current_pos]));
                 break;
             }
             let neighbours = get_neighbours(current_pos);
             for neighbour in neighbours {
+                let current_node = Rc::clone(&pos_to_node[&current_pos]);
                 let n_height = grid[neighbour.row as usize][neighbour.column as usize];
-                if !visited.contains(neighbour) {}
-            }
-        }
-    }
-
-    // bfs(&grid, &grid[0][0]);
-}
-
-/*
-fn bfs(grid: &Vec<Vec<Node>>, start: &Node) {
-    let mut visited_nodes = vec![];
-    visited_nodes.push(start.pos);
-    let mut queue = VecDeque::new();
-    queue.push_back(start.pos);
-    let root = Rc::new(start);
-    while !queue.is_empty() {
-        let current = queue.pop_front();
-        if let Some(current) = current {
-            let current_node = &grid[current.row as usize][current.column as usize];
-            if current_node.height == END {
-                // return Rc::new(current_node);
-            }
-            let neighbours = get_neighbours(grid, start);
-            for neighbour in neighbours {
-                let node = &grid[neighbour.row as usize][neighbour.column as usize];
-                if !visited_nodes.contains(&neighbour) {
+                if !visited.iter().any(|n| *n == neighbour) {
                     let child = Node {
-                        pos: node.pos,
-                        height: node.height,
-                        parent: Some(Rc::new(current_node)),
+                        pos: Vec2 {
+                            row: neighbour.row,
+                            column: neighbour.column,
+                        },
+                        height: n_height,
+                        parent: Some(current_node),
                     };
-                    visited_nodes.push(neighbour);
-                    queue.push_back(neighbour);
+                    visited.push(neighbour);
+                    frontier.push_back(neighbour);
+                    pos_to_node.insert(neighbour, Rc::new(child));
                 }
             }
         }
     }
-    // root
+
+    println!("{:?}", target.unwrap());
 }
-*/
 
 fn get_neighbours(pos: Vec2) -> Vec<Vec2> {
     // up, right, down, left
@@ -106,7 +91,7 @@ fn get_neighbours(pos: Vec2) -> Vec<Vec2> {
     let mut neighbours = vec![];
 
     for (n_r, n_c) in neighbour_coords {
-        if pos.row + n_r >= 0 || pos.row + n_r < 5 && pos.column + n_c >= 0 || pos.column + n_c < 8
+        if pos.row + n_r >= 0 && pos.row + n_r < 5 && pos.column + n_c >= 0 && pos.column + n_c < 8
         {
             neighbours.push(Vec2 {
                 row: pos.row + n_r,
@@ -138,10 +123,6 @@ fn _get_neighbours<'a>(grid: &'a Vec<Vec<Node>>, cell: &Node) -> Vec<Vec2> {
     neighbours
 }
 
-fn calculate_h_score((r1, c1): (u8, u8), (r2, c2): (u8, u8)) -> u8 {
-    r1.abs_diff(r2) + c1.abs_diff(c2)
-}
-
 #[derive(Debug)]
 struct Node {
     pos: Vec2,
@@ -149,7 +130,7 @@ struct Node {
     parent: Option<Rc<Node>>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, Hash)]
 struct Vec2 {
     row: i8,
     column: i8,
