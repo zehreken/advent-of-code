@@ -2,8 +2,8 @@ use crate::utils::read_lines;
 use std::collections::{HashMap, VecDeque};
 use std::rc::Rc;
 
-const START: char = 'S';
-const END: char = 'E';
+const START: char = 'E';
+const END: char = 'a';
 
 pub fn run() {
     part_two();
@@ -67,7 +67,7 @@ fn part_one() {
                 if !visited.iter().any(|n| *n == neighbour) {
                     let current_node = Rc::clone(&pos_to_node[&current_pos]);
                     let n_height = grid[neighbour.row as usize][neighbour.column as usize];
-                    if current_height == START || n_height as i8 - current_height as i8 <= 1 {
+                    if current_height == START || current_height as i8 - n_height as i8 <= 1 {
                         let child = Node {
                             pos: Vec2 {
                                 row: neighbour.row,
